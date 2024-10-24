@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import { View, Text, StyleSheet, ImageBackground, Image, TouchableOpacity, Animated, Easing } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as Font from 'expo-font';
 import AppLoading from 'expo-app-loading';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 // Charger les polices personnalisées
 const fetchFonts = () => {
@@ -13,6 +14,48 @@ const fetchFonts = () => {
     'custom-font': require('./assets/fonts/Starjedi.ttf'), // Mets le nom exact de ta police
   });
 };
+
+// SplashScreen Component
+function SplashScreen({ navigation }) {
+  const [logoOpacity] = useState(new Animated.Value(0));
+  const [logoScale] = useState(new Animated.Value(0.8));
+
+  useEffect(() => {
+    // Animation de l'opacité et du scale (zoom)
+    Animated.parallel([
+      Animated.timing(logoOpacity, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+      Animated.timing(logoScale, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      // Après l'animation, rediriger vers l'écran d'accueil
+      setTimeout(() => {
+        navigation.replace('Accueil');
+      }, 1000);  // Temps avant de passer à l'accueil
+    });
+  }, []);
+
+  return (
+    <View style={styles.splashContainer}>
+      <Animated.Image
+        source={require('./assets/logo_japan_forge.png')}
+        style={[
+          styles.logo,
+          {
+            opacity: logoOpacity,
+            transform: [{ scale: logoScale }],
+          },
+        ]}
+      />
+    </View>
+  );
+}
 
 function HomeScreen({ navigation }) {
   const spinValue = new Animated.Value(0);
@@ -101,6 +144,7 @@ function VideosScreen() {
 }
 
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
 
 export default function App() {
   const [fontLoaded, setFontLoaded] = React.useState(false);
@@ -117,47 +161,64 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-          tabBarIcon: ({ color, size }) => {
-            let iconName;
-            if (route.name === 'Accueil') {
-              iconName = 'home-outline';
-            } else if (route.name === 'Profil') {
-              iconName = 'person-outline';
-            } else if (route.name === 'Agenda') {
-              iconName = 'calendar-outline';
-            } else if (route.name === 'Videos') {
-              iconName = 'videocam-outline';
-            }
-            return <Ionicons name={iconName} size={size} color={color} />;
-          },
-          tabBarActiveTintColor: 'tomato',
-          tabBarInactiveTintColor: 'gray',
-          tabBarStyle: {
-            backgroundColor: '#000', // Noir pour la barre de navigation
-            borderTopColor: '#ff4d4d', // Rouge pour une touche similaire au logo
-          },
-          headerStyle: {
-            backgroundColor: '#000', // Noir pour la barre supérieure
-          },
-          headerTintColor: '#fff', // Texte blanc
-          headerTitleStyle: {
-            fontFamily: 'custom-font', // Police personnalisée pour le titre
-            fontSize: 20,
-          },
-        })}
-      >
-        <Tab.Screen name="Accueil" component={HomeScreen} />
-        <Tab.Screen name="Profil" component={ProfilScreen} />
-        <Tab.Screen name="Agenda" component={AgendaScreen} />
-        <Tab.Screen name="Videos" component={VideosScreen} />
-      </Tab.Navigator>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {/* Premier écran : animation de chargement */}
+        <Stack.Screen name="Splash" component={SplashScreen} />
+        {/* Écran d'accueil après l'animation */}
+        <Stack.Screen name="Accueil" component={HomeTabs} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }
 
+function HomeTabs() {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ color, size }) => {
+          let iconName;
+          if (route.name === 'Accueil') {
+            iconName = 'home-outline';
+          } else if (route.name === 'Profil') {
+            iconName = 'person-outline';
+          } else if (route.name === 'Agenda') {
+            iconName = 'calendar-outline';
+          } else if (route.name === 'Videos') {
+            iconName = 'videocam-outline';
+          }
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: 'tomato',
+        tabBarInactiveTintColor: 'gray',
+        tabBarStyle: {
+          backgroundColor: '#000', // Noir pour la barre de navigation
+          borderTopColor: '#ff4d4d', // Rouge pour une touche similaire au logo
+        },
+        headerStyle: {
+          backgroundColor: '#000', // Noir pour la barre supérieure
+        },
+        headerTintColor: '#fff', // Texte blanc
+        headerTitleStyle: {
+          fontFamily: 'custom-font', // Police personnalisée pour le titre
+          fontSize: 20,
+        },
+      })}
+    >
+      <Tab.Screen name="Accueil" component={HomeScreen} />
+      <Tab.Screen name="Profil" component={ProfilScreen} />
+      <Tab.Screen name="Agenda" component={AgendaScreen} />
+      <Tab.Screen name="Videos" component={VideosScreen} />
+    </Tab.Navigator>
+  );
+}
+
 const styles = StyleSheet.create({
+  splashContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000', // Fond noir
+  },
   background: {
     flex: 1,
     resizeMode: 'cover',
