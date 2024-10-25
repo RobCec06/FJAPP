@@ -7,9 +7,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as Font from 'expo-font';
 import AppLoading from 'expo-app-loading';
 import { useEffect, useState } from 'react';
-import LoginScreen from './LoginScreen';
-import { auth } from './firebaseConfig'; // Firebase config import
-import { onAuthStateChanged } from 'firebase/auth'; // Firebase auth method
 
 // Charger les polices personnalisées
 const fetchFonts = () => {
@@ -37,7 +34,7 @@ function CustomSplashScreen({ navigation }) {
       }),
     ]).start(() => {
       setTimeout(() => {
-        navigation.replace('Login');  // Diriger vers l'écran de connexion
+        navigation.replace('Accueil');  // Diriger vers l'écran d'accueil
       }, 1000);
     });
   }, []);
@@ -182,20 +179,13 @@ function VideosScreen() {
   );
 }
 
+// Initialize Tab & Stack Navigator
+const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator(); // Assure-toi que Stack est correctement défini
+
 // App Component
 export default function App() {
   const [fontLoaded, setFontLoaded] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setIsLoggedIn(true);
-      } else {
-        setIsLoggedIn(false);
-      }
-    });
-  }, []);
 
   if (!fontLoaded) {
     return (
@@ -210,17 +200,12 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Splash" component={SplashScreen} />
-        {isLoggedIn ? (
-          <Stack.Screen name="Accueil" component={HomeTabs} />
-        ) : (
-          <Stack.Screen name="Login" component={LoginScreen} />
-        )}
+        <Stack.Screen name="Splash" component={CustomSplashScreen} />
+        <Stack.Screen name="Accueil" component={HomeTabs} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
-
 
 // Styles
 const styles = StyleSheet.create({

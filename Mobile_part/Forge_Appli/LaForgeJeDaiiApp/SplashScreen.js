@@ -7,7 +7,7 @@ const SplashScreen = ({ navigation }) => {
 
   useEffect(() => {
     // Animation de l'opacité et du scale (zoom)
-    Animated.parallel([
+    const animateLogo = Animated.parallel([
       Animated.timing(logoOpacity, {
         toValue: 1,
         duration: 1000,
@@ -18,13 +18,17 @@ const SplashScreen = ({ navigation }) => {
         duration: 1000,
         useNativeDriver: true,
       }),
-    ]).start(() => {
-      // Après l'animation, rediriger vers l'écran d'accueil
+    ]);
+
+    animateLogo.start(() => {
       setTimeout(() => {
-        navigation.replace('Accueil');
-      }, 1000);  // Temps avant de passer à l'accueil
+        navigation.replace('Accueil');  // Rediriger vers l'accueil après l'animation
+      }, 1000);
     });
-  }, []);
+
+    // Cleanup de l'animation si le composant est démonté avant la fin
+    return () => animateLogo.stop();
+  }, [logoOpacity, logoScale, navigation]);
 
   return (
     <View style={styles.container}>
