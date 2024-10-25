@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { auth } from './firebaseConfig'; // Firebase config avec auth importé
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import React, { useState } from 'react';
+import './Login.css'; // Importer le fichier de styles pour le formulaire
+import { auth } from './firebaseConfig';  // Import Firebase Auth
+import { signInWithEmailAndPassword } from 'firebase/auth';  // Importer la fonction de connexion
 
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState('');
@@ -9,37 +10,42 @@ const Login = ({ onLogin }) => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError(null);  // Réinitialise l'erreur avant chaque tentative
     try {
-      // Tentative de connexion avec email et mot de passe
+      // Authentification avec Firebase Auth
       await signInWithEmailAndPassword(auth, email, password);
-      onLogin();  // Si la connexion réussit, appelle onLogin pour changer l'état
+      onLogin();  // Appeler la fonction onLogin en cas de succès
     } catch (error) {
-      // En cas d'erreur, afficher un message
-      setError('Erreur de connexion. Vérifiez vos informations.');
+      setError('Email ou mot de passe incorrect');  // Gestion des erreurs
     }
   };
 
   return (
-    <div>
-      <h2>Connexion Admin</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}  {/* Afficher les erreurs en rouge */}
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Mot de passe"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Se connecter</button>
-      </form>
+    <div className="login-container">
+      <div className="login-box">
+        <img src={require('./assets/logo_japan_forge.png')} alt="Logo La Forge" className="login-logo" />
+        <h2 className="login-title">Connexion Admin</h2>
+        {error && <p className="login-error">{error}</p>}
+        <form onSubmit={handleLogin}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="login-input"
+          />
+          <input
+            type="password"
+            placeholder="Mot de passe"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="login-input"
+          />
+          <button type="submit" className="login-button">Se connecter</button>
+        </form>
+      </div>
     </div>
   );
 };

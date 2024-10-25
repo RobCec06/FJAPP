@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';  // Importer Link depuis react-router-dom
 
 const Button = styled.button`
   background-color: #000;
@@ -21,8 +22,12 @@ const AdminDashboard = () => {
   return (
     <div>
       <h1>Bienvenue dans le tableau de bord admin</h1>
-      <Button>Gérer les événements</Button>
-      <Button>Gérer les vidéos</Button>
+      <Link to="/events">
+        <Button>Gérer les événements</Button>
+      </Link>
+      <Link to="/videos">
+        <Button>Gérer les vidéos</Button>
+      </Link>
     </div>
   );
 };
